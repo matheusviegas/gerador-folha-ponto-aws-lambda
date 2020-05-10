@@ -1,7 +1,5 @@
 package br.com.mvsouza.helpers;
 
-import br.com.mvsouza.scraping.bean.ScrapingInfo;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

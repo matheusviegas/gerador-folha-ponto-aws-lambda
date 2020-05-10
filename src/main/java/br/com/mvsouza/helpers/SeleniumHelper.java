@@ -4,14 +4,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class SeleniumHelper {
 
     public static WebDriver getWebDriver() {
-        //setFilePermissions();
         System.setProperty("webdriver.chrome.driver", getLibLocation("chromedriver"));
 
         ChromeOptions options = new ChromeOptions();
@@ -33,21 +28,6 @@ public class SeleniumHelper {
 
     private static String getLibLocation(String lib) {
         return String.format("%s/lib/%s", System.getenv("LAMBDA_TASK_ROOT"), lib);
-    }
-
-    private static void setFilePermissions() {
-        try {
-            File chrome = new File(getLibLocation("chrome"));
-            chrome.setExecutable(true, false);
-            chrome.setReadable(true, false);
-            chrome.setWritable(true, false);
-            File chromeDriver = new File(getLibLocation("chromedriver"));
-            chromeDriver.setExecutable(true, false);
-            chromeDriver.setReadable(true, false);
-            chromeDriver.setWritable(true, false);
-        } catch (Exception e) {
-            Logger.getLogger(SeleniumHelper.class.getSimpleName()).log(Level.SEVERE, "Erro ao alterar permissões dos executaveis", e);
-        }
     }
 
 }
