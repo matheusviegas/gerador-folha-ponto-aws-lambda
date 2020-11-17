@@ -14,7 +14,7 @@ public class GeneralHelpers {
         String initialDate = String.format("%d-%s-01", cal.get(Calendar.YEAR), (monthNumber < 10 ? "0" + monthNumber : monthNumber));
         String finalDate = String.format("%d-%s-%d", cal.get(Calendar.YEAR), (monthNumber < 10 ? "0" + monthNumber : monthNumber), cal.getActualMaximum(Calendar.DAY_OF_MONTH));
 
-        return String.format("http://gp.absoluta.net/api/user/timesheets?final_date=%s&initial_date=%s", finalDate, initialDate);
+        return String.format("http://absgp.deliverit.com.br/api/user/timesheets?final_date=%s&initial_date=%s", finalDate, initialDate);
     }
 
     public static ScrapingInfo parseFromParams(String[] params) throws IllegalArgumentException, ParseException {
