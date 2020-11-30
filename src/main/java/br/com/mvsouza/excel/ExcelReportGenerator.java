@@ -11,8 +11,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.sf.cglib.core.Local;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Data
@@ -42,12 +44,14 @@ public class ExcelReportGenerator {
         for (Map.Entry<String, List<String>> item : timesGroupedByDate.entrySet()) {
             ClockIn clockIn = blackRegistersMap.get(item.getKey());
 
+            int morningOutIndex = findMorningFinishIndex(item.getValue());
+
             clockIn.setMorningIn(GeneralHelpers.formatTime(GeneralHelpers.getStringFromList(item.getValue(), 0, "")));
-            clockIn.setMorningOut(GeneralHelpers.formatTime(GeneralHelpers.getStringFromList(item.getValue(), 1, "")));
-            clockIn.setAfternoonIn(GeneralHelpers.formatTime(GeneralHelpers.getStringFromList(item.getValue(), 2, "")));
-            clockIn.setAfternoonOut(GeneralHelpers.formatTime(GeneralHelpers.getStringFromList(item.getValue(), 3, "")));
-            clockIn.setExtraIn(GeneralHelpers.formatTime(GeneralHelpers.getStringFromList(item.getValue(), 4, "")));
-            clockIn.setExtraOut(GeneralHelpers.formatTime(GeneralHelpers.getStringFromList(item.getValue(), 5, "")));
+            clockIn.setMorningOut(GeneralHelpers.formatTime(GeneralHelpers.getStringFromList(item.getValue(), morningOutIndex, "")));
+            clockIn.setAfternoonIn(GeneralHelpers.formatTime(GeneralHelpers.getStringFromList(item.getValue(), morningOutIndex + 1, "")));
+            clockIn.setAfternoonOut(GeneralHelpers.formatTime(GeneralHelpers.getStringFromList(item.getValue(), item.getValue().size() - 1, "")));
+            clockIn.setExtraIn(GeneralHelpers.formatTime(""));
+            clockIn.setExtraOut(GeneralHelpers.formatTime(""));
         }
 
         List<ClockIn> clockInList = new ArrayList<>(blackRegistersMap.values());
@@ -83,5 +87,25 @@ public class ExcelReportGenerator {
         return clockinRegisterMap;
     }
 
+    private int findMorningFinishIndex(List<String> items) {
+        LocalDateTime midday = LocalDateTime.now().withHour(11).withMinute(59).withSecond(0).withNano(0);
+        LocalDateTime onePm = midday.plusHours(1);
+
+        int index = 2;
+
+        for (String hour : items) {
+            String[] splittedHour = hour.split(":");
+            LocalDateTime hourDate = LocalDateTime.now().withHour(Integer.parseInt(splittedHour[0])).withMinute(Integer.parseInt(splittedHour[1])).withSecond(0).withNano(0);
+
+            if(!(hourDate.isAfter(midday) && hourDate.isBefore(onePm))) {
+                continue;
+            }
+
+            index = items.indexOf(hour);
+
+        }
+        return index;
+
+    }
 
 }
