@@ -7,10 +7,10 @@ import org.openqa.selenium.chrome.ChromeOptions;
 public class SeleniumHelper {
 
     public static WebDriver getWebDriver() {
-        System.setProperty("webdriver.chrome.driver", getLibLocation("chromedriver"));
+        System.setProperty("webdriver.chrome.driver", getResourceLocation("chromedriver"));
 
         ChromeOptions options = new ChromeOptions();
-        options.setBinary(getLibLocation("chrome"));
+        options.setBinary(getResourceLocation("chrome"));
         options.addArguments("--no-sandbox");
         options.addArguments("--headless");
         options.setExperimentalOption("useAutomationExtension", false);
@@ -26,8 +26,8 @@ public class SeleniumHelper {
         return new ChromeDriver(options);
     }
 
-    private static String getLibLocation(String lib) {
-        return String.format("%s/lib/%s", System.getenv("LAMBDA_TASK_ROOT"), lib);
+    private static String getResourceLocation(String resource) {
+        return String.format("/opt/java/lib/%s", resource);
     }
 
 }
