@@ -6,28 +6,40 @@ import br.com.mvsouza.helpers.DateHelper;
 import br.com.mvsouza.helpers.JSON;
 import br.com.mvsouza.helpers.SeleniumHelper;
 import br.com.mvsouza.lambda.bean.GenerateReportRequest;
-import br.com.mvsouza.lambda.bean.GenerateReportResponse;
 import br.com.mvsouza.scraping.ScrapingHandler;
 import br.com.mvsouza.scraping.bean.ABSGPResponseWrapper;
 import br.com.mvsouza.scraping.bean.ScrapingInfo;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.amazonaws.services.lambda.runtime.events.SQSEvent;
 import org.openqa.selenium.WebDriver;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GenerateReportRequestHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public class GenerateReportRequestHandler implements RequestHandler<SQSEvent, Void> {
+
+
     @Override
-    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
-        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
-        response.setHeaders(Collections.singletonMap("Author", "github.com/matheusviegas"));
+    public Void handleRequest(SQSEvent event, Context context) {
 
         try {
-            GenerateReportRequest requestDTO = JSON.fromJson(request.getBody(), GenerateReportRequest.class);
+            List<SQSEvent.SQSMessage> messageList = event.getRecords();
+
+            if (messageList.isEmpty()) {
+                Logger.getLogger(GenerateReportRequestHandler.class.getSimpleName()).log(Level.INFO, "Lista de mensagens vazia.");
+                return null;
+            }
+
+            SQSEvent.SQSMessage message = messageList.get(0);
+
+            GenerateReportRequest requestDTO = JSON.fromJson(message.getBody(), GenerateReportRequest.class);
+
+            if (requestDTO == null) {
+                Logger.getLogger(GenerateReportRequestHandler.class.getSimpleName()).log(Level.INFO, "DTO nulo. Erro ao deserializar.");
+                return null;
+            }
 
             ScrapingInfo info = ScrapingInfo.builder().email(requestDTO.getEmail()).password(requestDTO.getPassword()).name(requestDTO.getName()).dateReference(DateHelper.parseDateReference(requestDTO.getDateReference())).build();
             WebDriver driver = SeleniumHelper.getWebDriver();
@@ -37,16 +49,11 @@ public class GenerateReportRequestHandler implements RequestHandler<APIGatewayPr
             byte[] reportContent = ExcelReportGenerator.builder().absgpData(scrapingResponse).scrapingInfo(info).build().generateReport();
 
             AmazonSES.builder().reportContent(reportContent).requestInfo(requestDTO).build().sendEmail();
-
-            response.setStatusCode(200);
-            response.setBody(JSON.toJson(GenerateReportResponse.builder().success(true).message("Planilha gerada com sucesso e enviada para o email informado.").build()));
         } catch (Exception e) {
-            response.setStatusCode(500);
-            response.setBody(JSON.toJson(GenerateReportResponse.builder().success(false).message("Erro ao gerar planilha.").build()));
             Logger.getLogger(GenerateReportRequestHandler.class.getSimpleName()).log(Level.SEVERE, "Erro geral ao gerar planilha.", e);
         }
 
-        return response;
+        return null;
     }
 
 
