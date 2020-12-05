@@ -1,7 +1,3 @@
-branches:
-  only:
-    - master
-
 language: java
 jdk:
   - openjdk8
@@ -9,6 +5,8 @@ sudo: false
 script: "mvn clean package"
 
 deploy:
+  on:
+    branch: master
   region: us-east-1
   memory_size: 1024
   runtime: java8
