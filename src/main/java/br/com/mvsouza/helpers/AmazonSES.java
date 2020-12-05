@@ -40,11 +40,6 @@ public class AmazonSES {
     private static String SUBJECT = "Gerador de Planilha de Folha Ponto";
     private static String BODY_TEXT = "Segue em anexo a planilha de folha ponto gerada";
 
-    private void setUpAWSCredentials() {
-        System.setProperty("aws.accessKeyId", "");
-        System.setProperty("aws.secretKey", "");
-    }
-
     public void sendEmail() throws Exception {
         Session session = Session.getDefaultInstance(new Properties());
         MimeMessage message = new MimeMessage(session);
@@ -84,7 +79,6 @@ public class AmazonSES {
         msg.addBodyPart(att);
 
         try {
-            setUpAWSCredentials();
             AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withCredentials(new SystemPropertiesCredentialsProvider()).withRegion(Regions.US_EAST_1).build();
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
