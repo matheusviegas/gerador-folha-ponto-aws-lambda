@@ -9,6 +9,8 @@ deploy:
     branch: master
   region: us-east-1
   memory_size: 1024
+  timeout: 600
+  description: Deploy realizado através do Travis CI
   runtime: java8
   layers: arn:aws:lambda:us-east-1:709665055891:layer:SeleniumDependenciesLayer:5
   provider: lambda
