@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 
 public class GenerateReportRequestHandler implements RequestHandler<SQSEvent, Void> {
 
-
     @Override
     public Void handleRequest(SQSEvent event, Context context) {
 
@@ -55,6 +54,5 @@ public class GenerateReportRequestHandler implements RequestHandler<SQSEvent, Vo
 
         return null;
     }
-
 
 }
