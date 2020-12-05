@@ -3,3 +3,8 @@ jdk:
   - openjdk8
 sudo: false
 script: "mvn clean package"
+
+deploy:
+  provider: lambda
+  function_name: gera-folha-ponto-deliver
+  edge: true
