@@ -3,3 +3,19 @@ jdk:
   - openjdk8
 sudo: false
 script: "mvn clean package"
+
+deploy:
+  on:
+    branch: master
+  region: us-east-1
+  memory_size: 1024
+  timeout: 600
+  description: "Deploy realizado através do Travis CI. Revisão (%{git_sha})"
+  module_name: br.com.mvsouza.lambda.GenerateReportRequestHandler
+  handler_name: handleRequest
+  runtime: java8
+  layers: arn:aws:lambda:us-east-1:709665055891:layer:SeleniumDependenciesLayer:5
+  provider: lambda
+  function_name: gera-folha-ponto-deliver
+  zip: ./target/GeraFolhaPontoABSGP.jar
+  edge: true
