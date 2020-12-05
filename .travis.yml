@@ -1,3 +1,7 @@
+branches:
+  only:
+    - master
+
 language: java
 jdk:
   - openjdk8
@@ -12,5 +16,4 @@ deploy:
   provider: lambda
   function_name: gera-folha-ponto-deliver
   zip: ./target/GeraFolhaPontoABSGP.jar
-  git_branch: master
   edge: true
