@@ -17,5 +17,6 @@ public class GenerateReportRequest {
     private String email;
     private String password;
     private String dateReference;
+    private String afternoonShiftStart;
 
 }

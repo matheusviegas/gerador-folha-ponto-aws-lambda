@@ -13,7 +13,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Data
@@ -29,7 +30,7 @@ public class ExcelReportGenerator {
         return ExcelHelper.builder().scrapingInfo(scrapingInfo).clockIns(parseABSGPResponse()).build().generateContent();
     }
 
-    private List<ClockIn> parseABSGPResponse() {
+    public List<ClockIn> parseABSGPResponse() {
         Map<String, List<String>> timesGroupedByDate = new HashMap<>();
 
         for (ABSGPClockInItem absgpClockInItem : absgpData.getTimesheets()) {
@@ -43,7 +44,7 @@ public class ExcelReportGenerator {
         for (Map.Entry<String, List<String>> item : timesGroupedByDate.entrySet()) {
             ClockIn clockIn = blackRegistersMap.get(item.getKey());
 
-            int morningOutIndex = findMorningFinishIndex(item.getValue());
+            int morningOutIndex = findMorningOutClockInIndex(item.getValue(), scrapingInfo.getAfternoonShiftStart());
 
             clockIn.setMorningIn(GeneralHelpers.formatTime(GeneralHelpers.getStringFromList(item.getValue(), 0, "")));
             clockIn.setMorningOut(GeneralHelpers.formatTime(GeneralHelpers.getStringFromList(item.getValue(), morningOutIndex, "")));
@@ -55,7 +56,7 @@ public class ExcelReportGenerator {
 
         List<ClockIn> clockInList = new ArrayList<>(blackRegistersMap.values());
 
-        Collections.sort(clockInList, Comparator.comparing(ClockIn::getMonthDay));
+        clockInList.sort(Comparator.comparing(ClockIn::getMonthDay));
 
         return clockInList;
     }
@@ -86,25 +87,18 @@ public class ExcelReportGenerator {
         return clockinRegisterMap;
     }
 
-    private int findMorningFinishIndex(List<String> items) {
-        LocalDateTime midday = LocalDateTime.now().withHour(11).withMinute(59).withSecond(0).withNano(0);
-        LocalDateTime onePm = midday.plusHours(1);
+    public int findMorningOutClockInIndex(List<String> hours, String afternoonShiftStart) {
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm", new Locale("pt-BR"));
+        LocalTime afternoonShiftStartHour = LocalTime.parse(afternoonShiftStart, timeFormatter);
 
-        int index = 2;
-
-        for (String hour : items) {
-            String[] splittedHour = hour.split(":");
-            LocalDateTime hourDate = LocalDateTime.now().withHour(Integer.parseInt(splittedHour[0])).withMinute(Integer.parseInt(splittedHour[1])).withSecond(0).withNano(0);
-
-            if(!(hourDate.isAfter(midday) && hourDate.isBefore(onePm))) {
-                continue;
+        for (int index = 0; index < hours.size(); index++) {
+            LocalTime hour = LocalTime.parse(hours.get(index), timeFormatter);
+            if (!hour.isBefore(afternoonShiftStartHour)) {
+                return index - 1;
             }
-
-            index = items.indexOf(hour);
-
         }
-        return index;
 
+        return 0;
     }
 
 }

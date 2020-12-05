@@ -17,5 +17,6 @@ public class ScrapingInfo {
     private String email;
     private String password;
     private Calendar dateReference;
+    private String afternoonShiftStart;
 
 }
