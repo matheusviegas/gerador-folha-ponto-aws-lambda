@@ -10,7 +10,7 @@ deploy:
   region: us-east-1
   memory_size: 1024
   timeout: 600
-  description: Deploy realizado através do Travis CI
+  description: "Deploy realizado através do Travis CI. Revisão (%{git_sha})"
   module_name: br.com.mvsouza.lambda.GenerateReportRequestHandler
   handler_name: handleRequest
   runtime: java8
