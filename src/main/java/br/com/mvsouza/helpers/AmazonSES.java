@@ -2,6 +2,7 @@ package br.com.mvsouza.helpers;
 
 
 import br.com.mvsouza.lambda.bean.GenerateReportRequest;
+import br.com.mvsouza.scraping.exceptions.ApplicationException;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
@@ -35,49 +36,50 @@ public class AmazonSES {
     private GenerateReportRequest requestInfo;
     private byte[] reportContent;
 
-    private static String SENDER = "Matheus Souza <contato@mvsouza.com.br>";
-    private static String SUBJECT = "Gerador de Planilha de Folha Ponto";
-    private static String BODY_TEXT = "Segue em anexo a planilha de folha ponto gerada";
+    private static final String SENDER = "Matheus Souza <contato@mvsouza.com.br>";
+    private static final String SUBJECT = "Gerador de Planilha de Folha Ponto";
+    private static final String BODY_TEXT = "Segue em anexo a planilha de folha ponto gerada";
 
-    public void sendEmail() throws Exception {
-        Session session = Session.getDefaultInstance(new Properties());
-        MimeMessage message = new MimeMessage(session);
-
-        message.setSubject(SUBJECT, "UTF-8");
-        message.setFrom(new InternetAddress(SENDER));
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(requestInfo.getEmail()));
-
-        MimeMultipart messageBody = new MimeMultipart("alternative");
-
-        MimeBodyPart wrap = new MimeBodyPart();
-
-        MimeBodyPart textPart = new MimeBodyPart();
-        textPart.setContent(BODY_TEXT, "text/plain; charset=UTF-8");
-
-        MimeBodyPart htmlPart = new MimeBodyPart();
-        htmlPart.setContent(BODY_TEXT, "text/html; charset=UTF-8");
-
-        messageBody.addBodyPart(textPart);
-        messageBody.addBodyPart(htmlPart);
-
-        wrap.setContent(messageBody);
-
-        MimeMultipart msg = new MimeMultipart("mixed");
-
-        message.setContent(msg);
-
-        msg.addBodyPart(wrap);
-
-        MimeBodyPart att = new MimeBodyPart();
-
-        DataSource byteArrayDataSource = new ByteArrayDataSource(reportContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-
-        att.setDataHandler(new DataHandler(byteArrayDataSource));
-        att.setFileName("folha-ponto.xlsx");
-
-        msg.addBodyPart(att);
-
+    public void sendEmail() throws ApplicationException {
         try {
+            Session session = Session.getDefaultInstance(new Properties());
+            MimeMessage message = new MimeMessage(session);
+
+            message.setSubject(SUBJECT, "UTF-8");
+            message.setFrom(new InternetAddress(SENDER));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(requestInfo.getEmail()));
+
+            MimeMultipart messageBody = new MimeMultipart("alternative");
+
+            MimeBodyPart wrap = new MimeBodyPart();
+
+            MimeBodyPart textPart = new MimeBodyPart();
+            textPart.setContent(BODY_TEXT, "text/plain; charset=UTF-8");
+
+            MimeBodyPart htmlPart = new MimeBodyPart();
+            htmlPart.setContent(BODY_TEXT, "text/html; charset=UTF-8");
+
+            messageBody.addBodyPart(textPart);
+            messageBody.addBodyPart(htmlPart);
+
+            wrap.setContent(messageBody);
+
+            MimeMultipart msg = new MimeMultipart("mixed");
+
+            message.setContent(msg);
+
+            msg.addBodyPart(wrap);
+
+            MimeBodyPart att = new MimeBodyPart();
+
+            DataSource byteArrayDataSource = new ByteArrayDataSource(reportContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+            att.setDataHandler(new DataHandler(byteArrayDataSource));
+            att.setFileName("folha-ponto.xlsx");
+
+            msg.addBodyPart(att);
+
+
             AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -89,7 +91,7 @@ public class AmazonSES {
             client.sendRawEmail(rawEmailRequest);
         } catch (Exception ex) {
             Logger.getLogger(AmazonSES.class.getSimpleName()).log(Level.SEVERE, "Erro ao enviar email.", ex);
-            throw new Exception("Erro ao enviar email.");
+            throw new ApplicationException("Erro ao enviar email.");
         }
     }
 }

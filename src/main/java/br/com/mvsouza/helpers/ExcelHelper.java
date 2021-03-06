@@ -26,158 +26,148 @@ public class ExcelHelper {
     private ScrapingInfo scrapingInfo;
 
     public byte[] generateContent() throws IOException {
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Cálculo Horas");
-        sheet.setDisplayGridlines(false);
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Cálculo Horas");
+            sheet.setDisplayGridlines(false);
 
-        Font headerFontNotBold = workbook.createFont();
-        headerFontNotBold.setBold(false);
-        headerFontNotBold.setFontHeightInPoints((short) 11);
-        headerFontNotBold.setFontName("Calibri");
+            Font headerFontNotBold = workbook.createFont();
+            headerFontNotBold.setBold(false);
+            headerFontNotBold.setFontHeightInPoints((short) 11);
+            headerFontNotBold.setFontName("Calibri");
 
-        Font arial = workbook.createFont();
-        arial.setBold(false);
-        arial.setFontHeightInPoints((short) 8);
-        arial.setFontName("Arial");
+            Font arial = workbook.createFont();
+            arial.setBold(false);
+            arial.setFontHeightInPoints((short) 8);
+            arial.setFontName("Arial");
 
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerFont.setFontHeightInPoints((short) 11);
+            headerFont.setFontName("Calibri");
 
-        Font headerFont = workbook.createFont();
-        headerFont.setBold(true);
-        headerFont.setFontHeightInPoints((short) 11);
-        headerFont.setFontName("Calibri");
-        //headerFont.setColor(IndexedColors.BLUE.getIndex());
+            CellStyle headerCellStyle = workbook.createCellStyle();
+            headerCellStyle.setFont(headerFont);
+            headerCellStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerCellStyle.setBorderBottom(BorderStyle.THIN);
+            headerCellStyle.setBorderLeft(BorderStyle.THIN);
+            headerCellStyle.setBorderRight(BorderStyle.THIN);
+            headerCellStyle.setBorderTop(BorderStyle.THIN);
 
-        CellStyle headerCellStyle = workbook.createCellStyle();
-        headerCellStyle.setFont(headerFont);
-        headerCellStyle.setAlignment(HorizontalAlignment.CENTER);
-        headerCellStyle.setBorderBottom(BorderStyle.THIN);
-        headerCellStyle.setBorderLeft(BorderStyle.THIN);
-        headerCellStyle.setBorderRight(BorderStyle.THIN);
-        headerCellStyle.setBorderTop(BorderStyle.THIN);
+            CellStyle leftStyle = workbook.createCellStyle();
+            leftStyle.setAlignment(HorizontalAlignment.LEFT);
+            leftStyle.setFont(headerFontNotBold);
+            leftStyle.setBorderBottom(BorderStyle.THIN);
+            leftStyle.setBorderLeft(BorderStyle.THIN);
+            leftStyle.setBorderRight(BorderStyle.THIN);
+            leftStyle.setBorderTop(BorderStyle.THIN);
 
+            CellStyle centerStyleArial = workbook.createCellStyle();
+            centerStyleArial.setFont(arial);
+            centerStyleArial.setAlignment(HorizontalAlignment.CENTER);
+            centerStyleArial.setBorderBottom(BorderStyle.THIN);
+            centerStyleArial.setBorderLeft(BorderStyle.THIN);
+            centerStyleArial.setBorderRight(BorderStyle.THIN);
+            centerStyleArial.setBorderTop(BorderStyle.THIN);
 
-        CellStyle leftStyle = workbook.createCellStyle();
-        leftStyle.setAlignment(HorizontalAlignment.LEFT);
-        leftStyle.setFont(headerFontNotBold);
-        leftStyle.setBorderBottom(BorderStyle.THIN);
-        leftStyle.setBorderLeft(BorderStyle.THIN);
-        leftStyle.setBorderRight(BorderStyle.THIN);
-        leftStyle.setBorderTop(BorderStyle.THIN);
+            CellStyle centerStyle = workbook.createCellStyle();
+            centerStyle.setFont(headerFontNotBold);
+            centerStyle.setAlignment(HorizontalAlignment.CENTER);
+            centerStyle.setBorderBottom(BorderStyle.THIN);
+            centerStyle.setBorderLeft(BorderStyle.THIN);
+            centerStyle.setBorderRight(BorderStyle.THIN);
+            centerStyle.setBorderTop(BorderStyle.THIN);
 
-        CellStyle centerStyleArial = workbook.createCellStyle();
-        centerStyleArial.setFont(arial);
-        centerStyleArial.setAlignment(HorizontalAlignment.CENTER);
-        centerStyleArial.setBorderBottom(BorderStyle.THIN);
-        centerStyleArial.setBorderLeft(BorderStyle.THIN);
-        centerStyleArial.setBorderRight(BorderStyle.THIN);
-        centerStyleArial.setBorderTop(BorderStyle.THIN);
+            final String ENTRADA_HEADER_NAME = "Entrada";
+            final String SAIDA_HEADER_NAME = "Saída";
+            String[] headers = new String[]{"1º Turno", "2º Turno", "Extra", "Assinatura"};
+            String[] subHeaders = new String[]{"Data", "", ENTRADA_HEADER_NAME, SAIDA_HEADER_NAME, ENTRADA_HEADER_NAME, SAIDA_HEADER_NAME, ENTRADA_HEADER_NAME, SAIDA_HEADER_NAME, ""};
 
-        CellStyle centerStyle = workbook.createCellStyle();
-        centerStyle.setFont(headerFontNotBold);
-        centerStyle.setAlignment(HorizontalAlignment.CENTER);
-        centerStyle.setBorderBottom(BorderStyle.THIN);
-        centerStyle.setBorderLeft(BorderStyle.THIN);
-        centerStyle.setBorderRight(BorderStyle.THIN);
-        centerStyle.setBorderTop(BorderStyle.THIN);
+            Row topo = sheet.createRow(0);
 
+            CellStyle topoStyle = workbook.createCellStyle();
+            topoStyle.setFont(headerFontNotBold);
 
-        String[] headers = new String[]{"1º Turno", "2º Turno", "Extra", "Assinatura"};
-        String[] subHeaders = new String[]{"Data", "", "Entrada", "Saída", "Entrada", "Saída", "Entrada", "Saída", ""};
+            Cell nomeCell = topo.createCell(0);
+            nomeCell.setCellValue(String.format("Nome do Colaborador: %s", scrapingInfo.getName()));
+            nomeCell.setCellStyle(topoStyle);
 
+            Cell mes = topo.createCell(7);
+            mes.setCellValue(DateHelper.getMonthName(scrapingInfo.getDateReference()));
+            mes.setCellStyle(topoStyle);
 
-        Row topo = sheet.createRow(0);
+            Cell ano = topo.createCell(8);
+            ano.setCellValue(String.valueOf(scrapingInfo.getDateReference().get(Calendar.YEAR)));
+            ano.setCellStyle(topoStyle);
 
-        CellStyle topoStyle = workbook.createCellStyle();
-        topoStyle.setFont(headerFontNotBold);
+            Row topheader = sheet.createRow(2);
 
-        Cell nomeCell = topo.createCell(0);
-        nomeCell.setCellValue(String.format("Nome do Colaborador: %s", scrapingInfo.getName()));
-        nomeCell.setCellStyle(topoStyle);
+            sheet.addMergedRegion(new CellRangeAddress(2, 3, 0, 1));
 
-        Cell mes = topo.createCell(7);
-        mes.setCellValue(DateHelper.getMonthName(scrapingInfo.getDateReference()));
-        mes.setCellStyle(topoStyle);
+            Cell cell2 = CellUtil.createCell(topheader, 0, "Data");
+            cell2.setCellStyle(centerStyle);
+            CellUtil.setAlignment(cell2, HorizontalAlignment.CENTER_SELECTION);
 
-        Cell ano = topo.createCell(8);
-        ano.setCellValue(String.valueOf(scrapingInfo.getDateReference().get(Calendar.YEAR)));
-        ano.setCellStyle(topoStyle);
+            Cell primeiroTurno = topheader.createCell(2);
+            primeiroTurno.setCellValue(headers[0]);
+            primeiroTurno.setCellStyle(headerCellStyle);
 
-        // TOP HEADERS
-        Row topheader = sheet.createRow(2);
+            Cell segundoTurno = topheader.createCell(4);
+            segundoTurno.setCellValue(headers[1]);
+            segundoTurno.setCellStyle(headerCellStyle);
 
+            Cell extra = topheader.createCell(6);
+            extra.setCellValue(headers[2]);
+            extra.setCellStyle(headerCellStyle);
 
-        sheet.addMergedRegion(new CellRangeAddress(2, 3, 0, 1));
-
-
-        Cell cell2 = CellUtil.createCell(topheader, 0, "Data");
-        cell2.setCellStyle(centerStyle);
-        CellUtil.setAlignment(cell2, HorizontalAlignment.CENTER_SELECTION);
-
-
-        Cell primeiroTurno = topheader.createCell(2);
-        primeiroTurno.setCellValue(headers[0]);
-        primeiroTurno.setCellStyle(headerCellStyle);
-
-        Cell segundoTurno = topheader.createCell(4);
-        segundoTurno.setCellValue(headers[1]);
-        segundoTurno.setCellStyle(headerCellStyle);
-
-
-        Cell extra = topheader.createCell(6);
-        extra.setCellValue(headers[2]);
-        extra.setCellStyle(headerCellStyle);
+            Cell assinatura = topheader.createCell(8);
+            assinatura.setCellValue(headers[3]);
+            assinatura.setCellStyle(headerCellStyle);
 
 
-        Cell assinatura = topheader.createCell(8);
-        assinatura.setCellValue(headers[3]);
-        assinatura.setCellStyle(headerCellStyle);
+            sheet.addMergedRegion(new CellRangeAddress(2, 2, 2, 3));
+            sheet.addMergedRegion(new CellRangeAddress(2, 2, 4, 5));
+            sheet.addMergedRegion(new CellRangeAddress(2, 2, 6, 7));
 
+            Row headerRow = sheet.createRow(3);
 
-        sheet.addMergedRegion(new CellRangeAddress(2, 2, 2, 3));
-        sheet.addMergedRegion(new CellRangeAddress(2, 2, 4, 5));
-        sheet.addMergedRegion(new CellRangeAddress(2, 2, 6, 7));
-
-
-        Row headerRow = sheet.createRow(3);
-
-        for (int i = 1; i < subHeaders.length; i++) {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(subHeaders[i]);
-            cell.setCellStyle(centerStyle);
-            CellUtil.setAlignment(cell, HorizontalAlignment.CENTER_SELECTION);
-        }
-
-        int initialRow = 4;
-
-        for (ClockIn clockIn : clockIns) {
-            Row row = sheet.createRow(initialRow++);
-
-            createCellContent(clockIn.getWeekDay(), leftStyle, row, 0, false);
-            createCellContent(clockIn.getMonthDay().toString(), centerStyle, row, 1, false);
-            createCellContent(clockIn.getMorningIn(), centerStyleArial, row, 2, true);
-            createCellContent(clockIn.getMorningOut(), centerStyleArial, row, 3, true);
-            createCellContent(clockIn.getAfternoonIn(), centerStyleArial, row, 4, true);
-            createCellContent(clockIn.getAfternoonOut(), centerStyleArial, row, 5, true);
-            createCellContent(clockIn.getExtraIn(), centerStyleArial, row, 6, true);
-            createCellContent(clockIn.getExtraOut(), centerStyleArial, row, 7, true);
-            createCellContent("", centerStyle, row, 8, true);
-
-            if (clockIn.isSunday()) {
-                row = sheet.createRow(initialRow++);
-                createBlankLineGreyBackground(row, workbook);
+            for (int i = 1; i < subHeaders.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(subHeaders[i]);
+                cell.setCellStyle(centerStyle);
+                CellUtil.setAlignment(cell, HorizontalAlignment.CENTER_SELECTION);
             }
+
+            int initialRow = 4;
+
+            for (ClockIn clockIn : clockIns) {
+                Row row = sheet.createRow(initialRow++);
+
+                createCellContent(clockIn.getWeekDay(), leftStyle, row, 0, false);
+                createCellContent(clockIn.getMonthDay().toString(), centerStyle, row, 1, false);
+                createCellContent(clockIn.getMorningIn(), centerStyleArial, row, 2, true);
+                createCellContent(clockIn.getMorningOut(), centerStyleArial, row, 3, true);
+                createCellContent(clockIn.getAfternoonIn(), centerStyleArial, row, 4, true);
+                createCellContent(clockIn.getAfternoonOut(), centerStyleArial, row, 5, true);
+                createCellContent(clockIn.getExtraIn(), centerStyleArial, row, 6, true);
+                createCellContent(clockIn.getExtraOut(), centerStyleArial, row, 7, true);
+                createCellContent("", centerStyle, row, 8, true);
+
+                if (clockIn.isSunday()) {
+                    row = sheet.createRow(initialRow++);
+                    createBlankLineGreyBackground(row, workbook);
+                }
+            }
+
+            sheet.autoSizeColumn(1);
+
+            sheet.setColumnWidth(0, 3500);
+            sheet.setColumnWidth(8, 6000);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            workbook.write(baos);
+            baos.close();
+            return baos.toByteArray();
         }
-
-        sheet.autoSizeColumn(1);
-
-        sheet.setColumnWidth(0, 3500);
-        sheet.setColumnWidth(8, 6000);
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        workbook.write(baos);
-        baos.close();
-
-        return baos.toByteArray();
     }
 
     private Cell createCellContent(String content, CellStyle style, Row row, int index, boolean center) {

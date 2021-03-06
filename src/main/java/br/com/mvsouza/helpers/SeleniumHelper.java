@@ -1,12 +1,14 @@
 package br.com.mvsouza.helpers;
 
+import lombok.experimental.UtilityClass;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+@UtilityClass
 public class SeleniumHelper {
 
-    public static WebDriver getWebDriver() {
+    public WebDriver getWebDriver() {
         System.setProperty("webdriver.chrome.driver", getResourceLocation("chromedriver"));
 
         ChromeOptions options = new ChromeOptions();
@@ -26,7 +28,7 @@ public class SeleniumHelper {
         return new ChromeDriver(options);
     }
 
-    private static String getResourceLocation(String resource) {
+    private String getResourceLocation(String resource) {
         return String.format("/opt/java/lib/%s", resource);
     }
 

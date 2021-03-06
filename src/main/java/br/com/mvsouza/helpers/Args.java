@@ -1,23 +1,32 @@
 package br.com.mvsouza.helpers;
 
-import java.util.Optional;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class Args {
 
-    public static <T> void requireNonNull(T object, String message) throws IllegalArgumentException {
-        Optional.ofNullable(object).orElseThrow(() -> new IllegalArgumentException(message));
+    public <T> void requireNonNull(T object, String message) throws IllegalArgumentException {
+        if (object == null) {
+            throw new IllegalArgumentException(message);
+        }
     }
 
-    public static void requireNonEmpty(String value, String message) throws IllegalArgumentException {
-        Optional.ofNullable(value).filter(s -> !s.isEmpty()).orElseThrow(() -> new IllegalArgumentException(message));
+    public void requireNonEmpty(String value, String message) throws IllegalArgumentException {
+        if (value == null || value.isEmpty()) {
+            throw new IllegalArgumentException(message);
+        }
     }
 
-    public static void requireNonEmptyArray(Object[] array, String message) throws IllegalArgumentException {
-        Optional.ofNullable(array.length).filter(length -> length > 0).orElseThrow(() -> new IllegalArgumentException(message));
+    public void requireNonEmptyArray(Object[] array, String message) throws IllegalArgumentException {
+        if (array == null || array.length == 0) {
+            throw new IllegalArgumentException(message);
+        }
     }
 
-    public static void requireArraySize(Object[] array, Integer size, String message) throws IllegalArgumentException {
-        Optional.ofNullable(array.length).filter(length -> length.equals(size)).orElseThrow(() -> new IllegalArgumentException(message));
+    public void requireArraySize(Object[] array, Integer size, String message) throws IllegalArgumentException {
+        if (array == null || array.length != size) {
+            throw new IllegalArgumentException(message);
+        }
     }
 
 }
