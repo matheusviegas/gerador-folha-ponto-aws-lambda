@@ -40,7 +40,14 @@ public class GenerateReportRequestHandler implements RequestHandler<SQSEvent, Vo
                 return null;
             }
 
-            ScrapingInfo info = ScrapingInfo.builder().email(requestDTO.getEmail()).password(requestDTO.getPassword()).name(requestDTO.getName()).dateReference(DateHelper.parseDateReference(requestDTO.getDateReference())).build();
+            ScrapingInfo info = ScrapingInfo.builder()
+                    .email(requestDTO.getEmail())
+                    .password(requestDTO.getPassword())
+                    .name(requestDTO.getName())
+                    .dateReference(DateHelper.parseDateReference(requestDTO.getDateReference()))
+                    .afternoonShiftStart(requestDTO.getAfternoonShiftStart())
+                    .build();
+
             WebDriver driver = SeleniumHelper.getWebDriver();
 
             ABSGPResponseWrapper scrapingResponse = ScrapingHandler.builder().driver(driver).scrapingInfo(info).build().execute();
